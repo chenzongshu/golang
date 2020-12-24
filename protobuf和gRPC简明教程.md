@@ -1,24 +1,70 @@
 # 简介
 
-ProtoBuf 是一套接口描述语言（IDL）和相关工具集（主要是 protoc，基于 C++ 实现），类似 Apache 的 Thrift）。用户写好 .proto 描述文件，之后使用 protoc 可以很容易编译成众多计算机语言（C++、Java、Python、C#、Golang 等）的接口代码。这些代码可以支持 gRPC，也可以不支持。
+## protobuf
 
-gRPC 是 Google 开源的 RPC 框架和库，已支持主流计算机语言。底层通信采用 gRPC 协议，比较适合互联网场景。gRPC 在设计上考虑了跟 ProtoBuf 的配合使用。
+Protocol Buffer (简称Protobuf) 是Google出品的性能优异、跨语言、跨平台的序列化库
 
-典型的配合使用场景是，写好 .proto 描述文件定义 RPC 的接口，然后用 protoc（带 gRPC 插件）基于 .proto 模板自动生成客户端和服务端的接口代码。
+## gRPC
+
+gRPC是谷歌推出的高性能RPC框架，默认支持protobuf
 
 # ProtoBuf
 
-- 编译器：protoc，以及一些官方没有带的语言插件；
-- 运行环境：各种语言的 protobuf 库，不同语言有不同的安装来源；
+编写 `.proto` 文件， 然后通过编译器根据不同语音生成不同的文件，比如go语音就是生成  `.pb.go` 文件，C语音生成 `.h` 和 `.cc` 文件，生成的文件里面除了数据结构还有些工具方法，比如字段的`getter`
 
-
-语法略,比较核心的是
-
-- message :代表数据结构,里面可以包括不同类型的成员变量，包括字符串、数字、数组、字典……
-- service代表 RPC 接口。变量后面的数字是代表进行二进制编码时候的提示信息，1~15 表示热变量，会用较少的字节来编码。另外，支持导入
-- 默认所有变量都是可选的（optional），repeated 则表示数组。主要 service rpc 接口只能接受单个 message 参数，返回单个 message；
+分为v2和v3版本，一般通过开头指明版本
 
 ```
+syntax = "proto3";
+```
+
+## 语法
+
+### message
+
+在 proto 中，所有结构化的数据都被称为 message。
+
+```protobuf
+syntax = "proto3";
+package proto;
+option go_package = ".;proto";
+message User {
+    string name=1;
+    int32 age=2;
+}
+message Id {
+    int32 uid=1;
+}
+//要生成server rpc代码
+service ServiceSearch{
+    rpc SaveUser(User) returns (Id){}
+    rpc UserInfo(Id) returns (User){}
+}
+```
+
+- message名称采用驼峰命名法，首字母大写
+- message中每个字段都有一个唯一的编号
+  - 可以不连续
+  - 编号1-15来放常用的字段，可以适当保留一些方便后续增加常用字段
+  - 编号19000-19999为protobuf协议保留字段，不能使用
+- 可使用关键字`reserved`来定义为保留字段，让另外的版本的`.proto`文件不能使用这些编号
+- 可用`repeated`来表示重复多次的数字，常用来表示数组
+
+### package
+
+在`.proto`文件中使用`package`声明包名，避免命名冲突。
+
+```protobuf
+syntax = "proto3";package foo.bar;message Open {...}
+```
+
+在其他的消息格式定义中可以使用**包名+消息名**的方式来使用类型，如：
+
+```protobuf
+message Foo {    ...    foo.bar.Open open = 1;    ...}
+```
+
+```protobuf
 syntax = "proto3";
 package hello;
 
@@ -36,7 +82,17 @@ service HelloService {
 }
 ```
 
-ProtoBuf 提供了 Marshal/Unmarshal 方法来将数据结构进行序列化操作。所生成的二进制文件在存储效率上比 XML 高 3~10 倍，并且处理性能高 1~2 个数量级。
+### service
+
+如果想要将消息类型用在RPC(远程方法调用)系统中，可以在`.proto`文件中定义一个RPC服务接口，protocol编译器会根据所选择的不同语言生成服务接口代码。例如，想要定义一个RPC服务并具有一个方法，该方法接收`SearchRequest`并返回一个`SearchResponse`，此时可以在`.proto`文件中进行如下定义：
+
+```protobuf
+service SearchService {    
+    rpc Search (SearchRequest) returns (SearchResponse) {}
+}
+```
+
+生成的接口代码作为客户端与服务端的约定，服务端必须实现定义的所有接口方法，客户端直接调用同名方法向服务端发起请求。
 
 
 
