@@ -1,5 +1,3 @@
-
-
 因为在看docker源代码，必须需要了解Go语言，所以做了一些学习和记录，主要记录两者不同的地方。根据实际代码阅读中的问题而来，省略了和C语言相同的部分,干货满满。
 
 > Go语言定义类型和变量名，方向和一般语言是反的，这点我觉得简直是反人类
@@ -15,31 +13,34 @@
 - 博客：[blog.golang.org/](https://blog.golang.org/)，不定期分享go的最佳实践，有些公司也会投稿介绍自己的案例；
 - 实验室：[play.golang.org](https://play.golang.org/)，感觉和tour类似，不过在这里编写的代码可以分享给别人；
 
-
-
 # 关键字
 
 - **GOROOT**
-GO语言安装路径
+  GO语言安装路径
 
 - **GOPATH**
-代码包所在路径,安装在系统上的GO包,路径为工作区位置,有源文件,相关包对象,执行文件
+  代码包所在路径,安装在系统上的GO包,路径为工作区位置,有源文件,相关包对象,执行文件
 
 # GO程序结构
+
 |-- bin  编译后的可执行文件 
 |-- pkg  编译后的包文件 (.a)
 |-- src  源代码
 一般来说,bin和pkg不用创建,go命令自动创建
 
 # 编译运行
+
 两种方式
 1、直接执行
+
 ```
 $go run hello.go  # 实际是编译成A.OUT再执行
 
 ## 如果这样运行,目录中必须有main.go,不然会报错
 ```
+
 2、编译执行
+
 ```
 $go build hello.go
 $./hello
@@ -49,10 +50,10 @@ $./hello
 
 其实，和C一样，Go的正式的语法使用分号来终止语句。和C不同的是，这些分号由词法分析器在扫描源代码过程中使用简单的规则自动插入分号，因此输入源代码多数时候就不需要分号了。
 
-
 # 包
 
 先来看一个最简单的例子,程序员都知道的hello world
+
 ```
 package main
 
@@ -62,6 +63,7 @@ func main() {
    fmt.Println("Hello, World!")
 }
 ```
+
  package main 就定义了包名。你必须在源文件中非注释的第一行指明这个文件属于哪个包，如：package main。package main表示一个可独立执行的程序，每个 Go 应用程序都包含一个名为 main 的包
 
 - **首字母大写是公有的，首字母小写是私有的**
@@ -93,6 +95,7 @@ go get是下载远程包的命令
 - 总顺序： 引入的包 -> 当前包的变量常量 -> init()[多个同一包则按照顺序执行] -> main函数
 
 - 被依赖的总是优先执行初始化，一个包只会被初始化一次。 a引入b，b引入c，则执行顺序c -> b -> a
+
 - 单个包顺序：当前包源文件名字排序后的变量常量 -> 排序后的init()
 
 # Modules
@@ -121,13 +124,14 @@ require rsc.io/quote v3.1.0+incompatible
 # import特殊语法
 
 加载自己写的模块:
+
 ```
 import "./model"    # 当前文件同一个目录下的model目录
 import "url/model"  # 加载GOPATH/src/url/model
 ```
 
-
 ## 点（.）操作
+
 点（.）操作的含义是：点（.）标识的包导入后，调用该包中函数时可以省略前缀包名。
 
 ```
@@ -146,7 +150,9 @@ func main() {
 ```
 
 ## 别名操作
+
 别名操作的含义是：将导入的包命名为另一个容易记忆的别名
+
 ```
 package main
 
@@ -163,7 +169,9 @@ func main() {
 ```
 
 ## 下划线（_）操作
+
 下划线（_）操作的含义是：导入该包，但不导入整个包，而是执行该包中的init函数，因此无法通过包名来调用包中的其他函数。使用下划线（_）操作往往是为了注册包里的引擎，让外部可以方便地使用。
+
 ```
 import _ "package1"
 import _ "package2"
@@ -175,8 +183,6 @@ import _ "package3"
 
 ## 变量作用域
 
-
-
 ## 函数作用域
 
 函数名称是小写开头的，它的作用域只属于所声明的包内使用，不能被其他包使用;
@@ -186,17 +192,23 @@ import _ "package3"
 # 变量
 
 ## 变量定义
+
 和C语言是反的
+
 ```
 var variable_list data_type
 ```
+
 也可以采用混合型
+
 ```
 var a,b,c = 3,4,"foo"
 ```
 
 ## **:=**
+
 := 表示声明变量并赋值
+
 ```
 d:=100        #系统自动推断类型,不需要var关键字
 ```
@@ -231,9 +243,10 @@ var var_name *var_type
 
 nil为空指针
 
-
 # 数组
+
 var variable_name [size] variable_type
+
 ```
 var balance [10] float32
 var balance = [5]float32{1000.0, 2.0, 3.4, 7.0, 50.0}
@@ -271,7 +284,7 @@ slice:=make([]int,5,10)  //这时，我们创建的切片长度是5，容量是1
 - 切片作为函数入参传值的时候, 是把切片本身复制了一份传入, 类似引用传值, 函数内修改值外部会体现出来
 
 - 还可以通过`...`操作符，把一个切片追加到另一个切片里。
-
+  
   ```
   slice := []int{1, 2, 3, 4, 5}
   newSlice := slice[1:2:3]  //长度为2-1=1，容量为3-1=2的新切片
@@ -288,13 +301,13 @@ slice:=make([]int,5,10)  //这时，我们创建的切片长度是5，容量是1
 
 ```
 a := [5]int{1, 2, 3, 4, 5}
- 
+
 b := a[2:4] // a[2] 和 a[3]，但不包括a[4]
 fmt.Println(b)
- 
+
 b = a[:4] // 从 a[0]到a[4]，但不包括a[4]
 fmt.Println(b)
- 
+
 b = a[2:] // 从 a[2]到a[4]，且包括a[2]
 fmt.Println(b)
 ```
@@ -305,44 +318,49 @@ fmt.Println(b)
 - **Map的key不能是 函数类型、Map、和Slice**，基于下面原因：
 
 > 1. Go语言规范规定，在键类型的值之间必须可以施加操作符==和!=，上面类型不支持
->
+> 
 > 2. 如果键的类型是接口类型的，那么键值的实际类型也不能是上述三种类型，否则在程序运行过程中会 
->
+>    
 >    引发panic
-
-
 
 # 循环与判断
 
 - if语句没有圆括号,但是必须有花括号;
+
 - switch没有break, 匹配到某个 case，执行完该 case 定义的行为后，默认不会继续往下执行。如果需要继续往下执行，需要使用 fallthrough;
+
 - for没有圆括号;(注意go中没有while)
-```
-//经典的for语句 init; condition; post
-for i := 0; i<10; i++{
+  
+  ```
+  //经典的for语句 init; condition; post
+  for i := 0; i<10; i++{
      fmt.Println(i)
-}
- 
+  }
+  ```
+
 //精简的for语句 condition
 i := 1
 for i<10 {
     fmt.Println(i)
     i++
 }
-```
 
+```
 # 函数
 ```
+
 func (p myType ) funcName ( [parameter list] ) ( [return_types] ) {
     函数体
     return 语句
 }
+
 ```
 - 函数可以有多个返回值
 - (p myType) 表明 函数所属于的类型对象！，**即为特定类型定义方法**，可以省去不写，即为普通的函数
 
 函数还可以输入不定参数,详细用法见例子:
 ```
+
 func sum(nums ...int) {
     fmt.Print(nums, " ")  //输出如 [1, 2, 3] 之类的数组
     total := 0
@@ -354,31 +372,37 @@ func sum(nums ...int) {
 func main() {
     sum(1, 2)
     sum(1, 2, 3)
- 
+
     //传数组
     nums := []int{1, 2, 3, 4}
     sum(nums...)
-}
-```
 
+}
+
+```
 # 方法
 一个方法就是一个包含了接受者的函数，接受者可以是命名类型或者结构体类型的一个值或者是一个指针。所有给定类型的方法属于该类型的方法集。
 语法:
 ```
+
 func (variable_name variable_data_type) function_name() [return_type]{
    /* function body*/
 }
+
 ```
 下面定义一个结构体类型和该类型的一个方法：
 ```
+
 type User struct {
   Name  string
   Email string
 }
 func (u User) Notify() error
+
 ```
 首先我们定义了一个叫做 User 的结构体类型，然后定义了一个该类型的方法叫做 Notify，该方法的接受者是一个 User 类型的值。要调用 Notify 方法我们需要一个 User 类型的值或者指针：
 ```
+
 // User 类型的值可以调用接受者是值的方法
 damon := User{"AriesDevil", "ariesdevil@xxoo.com"}
 damon.Notify()
@@ -386,6 +410,7 @@ damon.Notify()
 // User 类型的指针同样可以调用接受者是值的方法
 alimon := &User{"A-limon", "alimon@ooxx.com"}
 alimon.Notify()
+
 ```
 注意，当接受者不是一个指针时，该方法操作对应接受者的值的副本(意思就是即使你使用了指针调用函数，但是函数的接受者是值类型，所以函数内部操作还是对副本的操作，而不是指针操作),当接受者是指针时，即使用值类型调用那么函数内部也是对指针的操作
 
@@ -408,8 +433,10 @@ func (cat *Cat) SetName(name string) {
 - 3. 一个类型的方法集合中有哪些方法与它能实现哪些接口类型是息息相关的。如果一个基本类型和它的指针类型的方法集合是不同的，那么它们具体实现的接口类型的数量就也会有差异，除非这两个数量都是零。 比如，一个指针类型实现了某某接口类型，但它的基本类型却不一定能够作为该接口的实现类型。
 
 # 接口
+
 Go和传统的面向对象的编程语言不太一样,没有类和继承的概念.通过接口来实现面向对象.
 语法:
+
 ```
 type Namer interface {
     Method1(param_list) return_type
@@ -418,8 +445,8 @@ type Namer interface {
 }
 ```
 
-
 > 实现某个接口的类型，除了实现接口的方法外，还可以有自己的方法。
+
 ```
 package main
 
@@ -453,9 +480,11 @@ func main() {
     fmt.Printf("The rect has area: %f\n", areaIntf.Area())
 }
 ```
+
 如果去掉 Shaper 中 Perimeter() float64的注释，编译的时候报错误，这是因为 Rectangle 没有实现 Perimeter() 方法。
 
 > - 多个类型可以实现同一个接口。 
+
 - 一个类型可以实现多个接口。
 
 # 内存分配
@@ -468,6 +497,7 @@ func main() {
 # 错误处理 – Defer
 
 为了进行错误处理,比如防止资源泄露,go设计了一个defer函数
+
 ```
 func CopyFile(dstName, srcName string) (written int64, err error) {
     src, err := os.Open(srcName)
@@ -475,27 +505,31 @@ func CopyFile(dstName, srcName string) (written int64, err error) {
         return
     }
     defer src.Close()
- 
+
     dst, err := os.Create(dstName)
     if err != nil {
         return
     }
     defer dst.Close()
- 
+
     return io.Copy(dst, src)
 }
 ```
+
 Go的defer语句预设一个函数调用（延期的函数），该调用在函数执行defer返回时立刻运行。该方法显得不同常规，但却是处理上述资源泄露情况很有效，无论函数怎样返回，都必须进行资源释放。
 
 再看一个列子
+
 ```
 for i := 0; i < 5; i++ {
     defer fmt.Printf("%d ", i)
 }
 ```
+
 被延期的函数以后进先出（LIFO）的顺行执行，因此以上代码在返回时将打印4 3 2 1 0
 
 # 协程goroutine
+
 先来复习下,进程,线程和协程的概念,GoRoutine就是Go的协程
 
 - 进程：分配完整独立的地址空间，拥有自己独立的堆和栈，既不共享堆，亦不共享栈，进程的切换只发生在内核态，由操作系统调度。 
@@ -503,8 +537,10 @@ for i := 0; i < 5; i++ {
 - 协程：和线程类似，共享堆，不共享栈，协程的切换一般由程序员在代码中显式控制。
 
 ## goroutine基本概念
+
 GoRoutine主要是使用go关键字来调用函数，你还可以使用匿名函数;
 **注意,go routine被调度的的先后顺序是没法保证的**
+
 ```
 package main
 import "fmt"
@@ -521,7 +557,9 @@ func main(){
     }("going")
 }
 ```
+
 下面来看一个常见的错误用法
+
 ```
 array := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}
 var i = 0
@@ -546,11 +584,13 @@ index: 8 item: i
 index: 8 item: i
 ------------------
 ```
+
 最初的意图是index与item每次为1,a;2,b;3,c;….这样,结果却不是这样,到底什么原因呢?
 
 这里的go func每个index与item是共享的，并不是局部的，由于for循环的执行是很快的，每次循环启动一个go routine，在for循环结束之后（此时index与item的值分别变成了8与e），但是这个时候第一个启动的goroutine可能还没有开始执行，由于它们是共享变量的，之后所有输出的index与item都是8与e于是出现了上面的效果。
 
 将原来程序做些修改就能满足要求了:
+
 ```
 for i = 0; i < length; i++ {
   go func(index int) {
@@ -561,7 +601,9 @@ for i = 0; i < length; i++ {
 ```
 
 ## goroutine并发
+
 goroutine有个特性，如果一个goroutine没有被阻塞，那么别的goroutine就不会得到执行,这并不是真正的并发，如果你要真正的并发，你需要在你的main函数的第一行加上下面的这段代码：
+
 ```
 import "runtime"
 ...
@@ -571,20 +613,23 @@ runtime.GOMAXPROCS(4)
 goroutine并发安全性问题,需要注意:
 
 - 互斥量上锁
-```
-var mutex = &sync.Mutex{} //可简写成：var mutex sync.Mutex
-mutex.Lock()
-...
-mutex.Unlock()
-```
+  
+  ```
+  var mutex = &sync.Mutex{} //可简写成：var mutex sync.Mutex
+  mutex.Lock()
+  ...
+  mutex.Unlock()
+  ```
+
 - 原子性操作
-```
-import "sync/atomic"
-......
-atomic.AddUint32(&cnt, 1)
-......
-cntFinal := atomic.LoadUint32(&cnt)//取数据
-```
+  
+  ```
+  import "sync/atomic"
+  ......
+  atomic.AddUint32(&cnt, 1)
+  ......
+  cntFinal := atomic.LoadUint32(&cnt)//取数据
+  ```
 
 # Channel 通道
 
@@ -641,7 +686,9 @@ chan<- float64  // 只可以用来发送 float64 类型的数据
 初始化时候,可以指定容量`make(chanint,100)`;容量(capacity)代表Channel容纳的最多的元素的数量
 
 ## Channel的阻塞
+
 channel默认上是阻塞的，也就是说，如果Channel满了，就阻塞写，如果Channel空了，就阻塞读。于是，我们就可以使用这种特性来同步我们的发送和接收端。
+
 ```
 package main
 
@@ -678,7 +725,9 @@ func main() {
     fmt.Println("Reader: ", msg)
 }
 ```
+
 结果为
+
 ```
 Reader Wake up...
 Reader:  hello
@@ -691,6 +740,7 @@ Reader:  channel
 ```
 
 ## 多个Channel的select
+
 ```
 package main
 import "time"
@@ -724,7 +774,9 @@ func main() {
 ```
 
 # 定时器
+
 Go语言中可以使用time.NewTimer或time.NewTicker来设置一个定时器，这个定时器会绑定在你的当前channel中，通过channel的阻塞通知机器来通知你的程序。
+
 ```
 package main
 
@@ -739,14 +791,16 @@ func main() {
 }
 ```
 
-
 ## 关闭channel
+
 使用close命令
+
 ```
 close(channel)
 ```
 
 # 系统调用
+
 Go语言主要是通过两个包完成的。一个是os包，一个是syscall包。
 这两个包里提供都是Unix-Like的系统调用，
 
@@ -754,6 +808,7 @@ Go语言主要是通过两个包完成的。一个是os包，一个是syscall包
 - os包里提供的东西不多，主要是一个跨平台的调用。它有三个子包，Exec（运行别的命令）, Signal（捕捉信号）和User（通过uid查name之类的）
 
 如执行命令行
+
 ```
 package main
 import "os/exec"
@@ -832,9 +887,9 @@ func main() {
 我们干了什么事情呢
 
 >    1、定义了一个叫做Foo的结构，里面有一个叫bar的field。随后，我们创建了一个基于Foo结构体的slice，名字叫list
-     2、我们还创建了一个基于Foo结构体指针类型的slice，叫做list2
-     3、在一个for循环中，我们试图遍历list中的每一个元素，获取其指针地址，并赋值到list2中index与之对应的位置。
-     4、最后，分别输出list与list2中的每个元素
+>      2、我们还创建了一个基于Foo结构体指针类型的slice，叫做list2
+>      3、在一个for循环中，我们试图遍历list中的每一个元素，获取其指针地址，并赋值到list2中index与之对应的位置。
+>      4、最后，分别输出list与list2中的每个元素
 
 期望结果为:
 
@@ -968,16 +1023,18 @@ func (v *Stack) Read(ctx context.Context) (pkt Packet, err error) {
 ## 使用规范
 
 - 1、不要将 Contexts 放入结构体，相反context应该作为第一个参数传入，命名为ctx。
-```
-func DoSomething(ctx context.Context, arg Arg) error {
+  
+  ```
+  func DoSomething(ctx context.Context, arg Arg) error {
          ... use ctx ...
-}
-```
+  }
+  ```
+
 - 2、即使函数允许也不要传递一个nil的Context。如果不确定使用哪种Conetex，传递context.TODO 
+
 - 3、使用context的Value相关方法只应该用于在程序和接口中传递的和请求相关的数据，不要用它来传递一些可选的参数。 
+
 - 4、相同的Context可以在不同的goroutines中传递，Contexts是线程安全的。
-
-
 
 # 目录结构
 
@@ -1026,8 +1083,6 @@ func DoSomething(ctx context.Context, arg Arg) error {
     ├── gopkg.in
     └── vendor.json
 ```
-
-
 
 # 附录:
 

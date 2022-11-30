@@ -78,13 +78,13 @@ type Person struct{
     sex string
     age int
 }
- 
+
 func main(){
     m := map[uint]Person{
         0 : Person{"张无忌", "男", 18},
         1 : Person{"周芷若", "女", 17},
     }
-    
+
     m[0].age = 20  //这个会报错
 ```
 
@@ -122,11 +122,64 @@ func main() {
 }
 ```
 
+## map排序
+
+使用 sort.Slice 排序
+
+```go
+package main
+
+import (
+	"fmt"
+	"sort"
+)
+
+type kv struct {
+	Key   string
+	Value int
+}
+
+type podCPUUseRatio struct {
+	podname        string
+	podCPUUseRatio float64
+}
+
+func SortMap(pods map[string]podCPUUseRatio) []podCPUUseRatio {
+	var ss []podCPUUseRatio
+	for _, v := range pods {
+		ss = append(ss, v)
+	}
+
+	sort.Slice(ss, func(i, j int) bool {
+		return ss[i].podCPUUseRatio > ss[j].podCPUUseRatio // 降序
+		// return ss[i].Value < ss[j].Value  // 升序
+	})
+
+	return ss
+
+}
+
+func main() {
+	m := map[string]podCPUUseRatio{
+		"a": {"pd1", 2.32},
+		"b": {"pd2", 4.32},
+		"c": {"pd3", 3.32},
+	}
+
+	sortedPods := SortMap(m)
+
+	for _, v := range sortedPods {
+		fmt.Printf("%s, %d\n", v.podname, v.podCPUUseRatio)
+	}
+
+}
+```
+
 # 引用类型和值类型
 
 在GO中，我们判断所谓的“传值”或者“传引用”只要看被传递的值的类型就好了。 如果传递的值是引用类型的，那么就是“传引用”。如果传递的值是值类型的，那么就 是“传值”。
 
-*  slice、map 和 channel都是引用类型
+* slice、map 和 channel都是引用类型
 * 其他是值类型
 
 # Sync
@@ -166,25 +219,25 @@ func coordinateWithWaitGroup() {
 package main
 
 import (
-	"fmt"
-	"sync"
+    "fmt"
+    "sync"
 )
 
 func main() {
-	var once sync.Once
-	onceBody := func() {
-		fmt.Println("Only once")
-	}
-	done := make(chan bool)
-	for i := 0; i < 10; i++ {
-		go func() {
-			once.Do(onceBody)
-			done <- true
-		}()
-	}
-	for i := 0; i < 10; i++ {
-		<-done
-	}
+    var once sync.Once
+    onceBody := func() {
+        fmt.Println("Only once")
+    }
+    done := make(chan bool)
+    for i := 0; i < 10; i++ {
+        go func() {
+            once.Do(onceBody)
+            done <- true
+        }()
+    }
+    for i := 0; i < 10; i++ {
+        <-done
+    }
 }
 
 # Output:
@@ -205,24 +258,24 @@ Only once
 
 ```go
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	go func(ctx context.Context) {
-		for {
-			select {
-			case <-ctx.Done():
-				fmt.Println("监控退出，停止了...")
-				return
-			default:
-				fmt.Println("goroutine监控中...")
-				time.Sleep(2 * time.Second)
-			}
-		}
-	}(ctx)
-	time.Sleep(10 * time.Second)
-	fmt.Println("可以了，通知监控停止")
-	cancel()
-	//为了检测监控过是否停止，如果没有监控输出，就表示停止了
-	time.Sleep(5 * time.Second)
+    ctx, cancel := context.WithCancel(context.Background())
+    go func(ctx context.Context) {
+        for {
+            select {
+            case <-ctx.Done():
+                fmt.Println("监控退出，停止了...")
+                return
+            default:
+                fmt.Println("goroutine监控中...")
+                time.Sleep(2 * time.Second)
+            }
+        }
+    }(ctx)
+    time.Sleep(10 * time.Second)
+    fmt.Println("可以了，通知监控停止")
+    cancel()
+    //为了检测监控过是否停止，如果没有监控输出，就表示停止了
+    time.Sleep(5 * time.Second)
 }
 ```
 
@@ -238,29 +291,29 @@ func main() {
 
 ```go
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	go watch(ctx,"【监控1】")
-	go watch(ctx,"【监控2】")
-	go watch(ctx,"【监控3】")
+    ctx, cancel := context.WithCancel(context.Background())
+    go watch(ctx,"【监控1】")
+    go watch(ctx,"【监控2】")
+    go watch(ctx,"【监控3】")
 
-	time.Sleep(10 * time.Second)
-	fmt.Println("可以了，通知监控停止")
-	cancel()
-	//为了检测监控过是否停止，如果没有监控输出，就表示停止了
-	time.Sleep(5 * time.Second)
+    time.Sleep(10 * time.Second)
+    fmt.Println("可以了，通知监控停止")
+    cancel()
+    //为了检测监控过是否停止，如果没有监控输出，就表示停止了
+    time.Sleep(5 * time.Second)
 }
 
 func watch(ctx context.Context, name string) {
-	for {
-		select {
-		case <-ctx.Done():
-			fmt.Println(name,"监控退出，停止了...")
-			return
-		default:
-			fmt.Println(name,"goroutine监控中...")
-			time.Sleep(2 * time.Second)
-		}
-	}
+    for {
+        select {
+        case <-ctx.Done():
+            fmt.Println(name,"监控退出，停止了...")
+            return
+        default:
+            fmt.Println(name,"goroutine监控中...")
+            time.Sleep(2 * time.Second)
+        }
+    }
 }
 ```
 
@@ -270,10 +323,10 @@ func watch(ctx context.Context, name string) {
 
 ```go
 type Context interface {
-	Deadline() (deadline time.Time, ok bool)
-	Done() <-chan struct{}
-	Err() error
-	Value(key interface{}) interface{}
+    Deadline() (deadline time.Time, ok bool)
+    Done() <-chan struct{}
+    Err() error
+    Value(key interface{}) interface{}
 }
 ```
 
@@ -289,17 +342,16 @@ type Context interface {
 
 ```go
   func Stream(ctx context.Context, out chan<- Value) error {
-  	for {
-  		v, err := DoSomething(ctx)
-  		if err != nil {
-  			return err
-  		}
-  		select {
-  		case <-ctx.Done():
-  			return ctx.Err()
-  		case out <- v:
-  		}
-  	}
+      for {
+          v, err := DoSomething(ctx)
+          if err != nil {
+              return err
+          }
+          select {
+          case <-ctx.Done():
+              return ctx.Err()
+          case out <- v:
+          }
+      }
   }
 ```
-
